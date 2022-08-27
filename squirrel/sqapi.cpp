@@ -233,8 +233,13 @@ void sq_pushnull(HSQUIRRELVM v)
 
 void sq_pushstring(HSQUIRRELVM v,const SQChar *s,SQInteger len)
 {
+    sq_pushstringex(v,s,len,SQFalse);
+}
+
+void sq_pushstringex(HSQUIRRELVM v,const SQChar *s,SQInteger len,SQBool isconst)
+{
     if(s)
-        v->Push(SQObjectPtr(SQString::Create(_ss(v), s, len)));
+        v->Push(SQObjectPtr(SQString::Create(_ss(v), s, len, isconst)));
     else v->PushNull();
 }
 
@@ -419,7 +424,7 @@ SQRESULT sq_setnativeclosurename(HSQUIRRELVM v,SQInteger idx,const SQChar *name)
     SQObject o = stack_get(v, idx);
     if(sq_isnativeclosure(o)) {
         SQNativeClosure *nc = _nativeclosure(o);
-        nc->_name = SQString::Create(_ss(v),name);
+        nc->_name = SQString::Create(_ss(v),name,SQFalse);
         return SQ_OK;
     }
     return sq_throwerror(v,_SC("the object is not a nativeclosure"));

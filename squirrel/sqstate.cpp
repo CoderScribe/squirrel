@@ -577,7 +577,7 @@ void SQStringTable::AllocNodes(SQInteger size)
     memset(_strings,0,sizeof(SQString*)*_numofslots);
 }
 
-SQString *SQStringTable::Add(const SQChar *news,SQInteger len)
+SQString *SQStringTable::Add(const SQChar *news,SQInteger len,SQBool isconst)
 {
     if(len<0)
         len = (SQInteger)scstrlen(news);
@@ -589,11 +589,20 @@ SQString *SQStringTable::Add(const SQChar *news,SQInteger len)
             return s; //found
     }
 
-    SQString *t = (SQString *)SQ_MALLOC(sq_rsl(len)+sizeof(SQString));
-    new (t) SQString;
+    SQString *t;
+    if(isconst) {
+        t = (SQString *)SQ_MALLOC(sizeof(SQString));
+		new (t) SQString;
+		t->_val = (SQChar*)news;
+    }
+    else {
+        t = (SQString *)SQ_MALLOC(sq_rsl(len+1)+sizeof(SQString));
+        new (t) SQString;
+        t->_val = (SQChar*)(((unsigned char*)t) + sizeof(SQString));
+        memcpy(t->_val,news,sq_rsl(len));
+        t->_val[len] = _SC('\0');
+    }
     t->_sharedstate = _sharedstate;
-    memcpy(t->_val,news,sq_rsl(len));
-    t->_val[len] = _SC('\0');
     t->_len = len;
     t->_hash = newhash;
     t->_next = _strings[h];
@@ -636,8 +645,14 @@ void SQStringTable::Remove(SQString *bs)
                 _strings[h] = s->_next;
             _slotused--;
             SQInteger slen = s->_len;
+            SQChar *val = s->_val;
             s->~SQString();
-            SQ_FREE(s,sizeof(SQString) + sq_rsl(slen));
+            if(val == (SQChar*)(((unsigned char*)s) + sizeof(SQString))) {
+				SQ_FREE(s,sizeof(SQString) + sq_rsl(slen + 1));
+			}
+			else {
+				SQ_FREE(s,sizeof(SQString));
+			}
             return;
         }
         prev = s;

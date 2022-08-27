@@ -415,10 +415,10 @@ static SQInteger _regexp_match(HSQUIRRELVM v)
 static void _addrexmatch(HSQUIRRELVM v,const SQChar *str,const SQChar *begin,const SQChar *end)
 {
     sq_newtable(v);
-    sq_pushstring(v,_SC("begin"),-1);
+    sq_pushstringex(v,_SC("begin"),-1,SQTrue);
     sq_pushinteger(v,begin - str);
     sq_rawset(v,-3);
-    sq_pushstring(v,_SC("end"),-1);
+    sq_pushstringex(v,_SC("end"),-1,SQTrue);
     sq_pushinteger(v,end - str);
     sq_rawset(v,-3);
 }
@@ -488,7 +488,7 @@ static SQInteger _regexp_constructor(HSQUIRRELVM v)
 
 static SQInteger _regexp__typeof(HSQUIRRELVM v)
 {
-    sq_pushstring(v,_SC("regexp"),-1);
+    sq_pushstringex(v,_SC("regexp"),-1,SQTrue);
     return 1;
 }
 
@@ -522,14 +522,14 @@ static const SQRegFunction stringlib_funcs[]={
 
 SQInteger sqstd_register_stringlib(HSQUIRRELVM v)
 {
-    sq_pushstring(v,_SC("regexp"),-1);
+    sq_pushstringex(v,_SC("regexp"),-1,SQTrue);
     sq_newclass(v,SQFalse);
 	rex_typetag = (SQUserPointer)rexobj_funcs;
 	sq_settypetag(v, -1, rex_typetag);
     SQInteger i = 0;
     while(rexobj_funcs[i].name != 0) {
         const SQRegFunction &f = rexobj_funcs[i];
-        sq_pushstring(v,f.name,-1);
+        sq_pushstringex(v,f.name,-1,SQTrue);
         sq_newclosure(v,f.f,0);
         sq_setparamscheck(v,f.nparamscheck,f.typemask);
         sq_setnativeclosurename(v,-1,f.name);
@@ -541,7 +541,7 @@ SQInteger sqstd_register_stringlib(HSQUIRRELVM v)
     i = 0;
     while(stringlib_funcs[i].name!=0)
     {
-        sq_pushstring(v,stringlib_funcs[i].name,-1);
+        sq_pushstringex(v,stringlib_funcs[i].name,-1,SQTrue);
         sq_newclosure(v,stringlib_funcs[i].f,0);
         sq_setparamscheck(v,stringlib_funcs[i].nparamscheck,stringlib_funcs[i].typemask);
         sq_setnativeclosurename(v,-1,stringlib_funcs[i].name);
