@@ -53,7 +53,7 @@ SQClass::~SQClass()
 bool SQClass::NewSlot(SQSharedState *ss,const SQObjectPtr &key,const SQObjectPtr &val,bool bstatic)
 {
     SQObjectPtr temp;
-    bool belongs_to_static_table = sq_type(val) == OT_CLOSURE || sq_type(val) == OT_NATIVECLOSURE || bstatic;
+    bool belongs_to_static_table = sq_type(val) == OT_CLOSURE || sq_type(val) == OT_NATIVECLOSURE || sq_type(val) == OT_LNATIVECLOSURE || bstatic;
     if(_locked && !belongs_to_static_table)
         return false; //the class already has an instance so cannot be modified
     if(_members->Get(key,temp) && _isfield(temp)) //overrides the default value

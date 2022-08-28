@@ -302,7 +302,7 @@ SQRESULT declare_stream(HSQUIRRELVM v,const SQChar* name,SQUserPointer typetag,c
             sq_pushstringex(v,f.name,-1,SQTrue);
             sq_newclosure(v,f.f,0);
             sq_setparamscheck(v,f.nparamscheck,f.typemask);
-            sq_setnativeclosurename(v,-1,f.name);
+            sq_setnativeclosurenameex(v,-1,f.name,SQTrue);
             sq_newslot(v,-3,SQFalse);
             i++;
         }
@@ -316,7 +316,7 @@ SQRESULT declare_stream(HSQUIRRELVM v,const SQChar* name,SQUserPointer typetag,c
             sq_pushstringex(v,f.name,-1,SQTrue);
             sq_newclosure(v,f.f,0);
             sq_setparamscheck(v,f.nparamscheck,f.typemask);
-            sq_setnativeclosurename(v,-1,f.name);
+            sq_setnativeclosurenameex(v,-1,f.name,SQTrue);
             sq_newslot(v,-3,SQFalse);
             i++;
         }

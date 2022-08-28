@@ -532,7 +532,7 @@ SQInteger sqstd_register_stringlib(HSQUIRRELVM v)
         sq_pushstringex(v,f.name,-1,SQTrue);
         sq_newclosure(v,f.f,0);
         sq_setparamscheck(v,f.nparamscheck,f.typemask);
-        sq_setnativeclosurename(v,-1,f.name);
+        sq_setnativeclosurenameex(v,-1,f.name,SQTrue);
         sq_newslot(v,-3,SQFalse);
         i++;
     }
@@ -544,7 +544,7 @@ SQInteger sqstd_register_stringlib(HSQUIRRELVM v)
         sq_pushstringex(v,stringlib_funcs[i].name,-1,SQTrue);
         sq_newclosure(v,stringlib_funcs[i].f,0);
         sq_setparamscheck(v,stringlib_funcs[i].nparamscheck,stringlib_funcs[i].typemask);
-        sq_setnativeclosurename(v,-1,stringlib_funcs[i].name);
+        sq_setnativeclosurenameex(v,-1,stringlib_funcs[i].name,SQTrue);
         sq_newslot(v,-3,SQFalse);
         i++;
     }

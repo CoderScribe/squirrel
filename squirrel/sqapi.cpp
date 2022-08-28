@@ -263,6 +263,11 @@ void sq_pushuserpointer(HSQUIRRELVM v,SQUserPointer p)
     v->Push(p);
 }
 
+void sq_pushlnativeclosure(HSQUIRRELVM v,SQFUNCTION p)
+{
+	v->Push(p);
+}
+
 void sq_pushthread(HSQUIRRELVM v, HSQUIRRELVM thread)
 {
     v->Push(thread);
@@ -416,15 +421,26 @@ SQRESULT sq_getclosureinfo(HSQUIRRELVM v,SQInteger idx,SQInteger *nparams,SQInte
         *nfreevars = (SQInteger)c->_noutervalues;
         return SQ_OK;
     }
+    else if(sq_type(o) == OT_LNATIVECLOSURE)
+	{
+		*nparams = 0;
+		*nfreevars = 0;
+		return SQ_OK;
+	}
     return sq_throwerror(v,_SC("the object is not a closure"));
 }
 
 SQRESULT sq_setnativeclosurename(HSQUIRRELVM v,SQInteger idx,const SQChar *name)
 {
+	return sq_setnativeclosurenameex(v,idx,name,SQFalse);
+}
+
+SQRESULT sq_setnativeclosurenameex(HSQUIRRELVM v,SQInteger idx,const SQChar *name,SQBool isconst)
+{
     SQObject o = stack_get(v, idx);
     if(sq_isnativeclosure(o)) {
         SQNativeClosure *nc = _nativeclosure(o);
-        nc->_name = SQString::Create(_ss(v),name,SQFalse);
+        nc->_name = SQString::Create(_ss(v),name,isconst);
         return SQ_OK;
     }
     return sq_throwerror(v,_SC("the object is not a nativeclosure"));
