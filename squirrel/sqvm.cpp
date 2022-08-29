@@ -419,8 +419,8 @@ bool SQVM::StartCall(SQClosure *closure,SQInteger target,SQInteger args,SQIntege
         }
     }
 
-    if(closure->_env) {
-        _stack._vals[stackbase] = closure->_env->_obj;
+    if(closure->_env._type != OT_NULL) {
+        _stack._vals[stackbase] = closure->_env;
     }
 
     if(!EnterFrame(stackbase, newtop, tailcall)) return false;
@@ -614,8 +614,7 @@ bool SQVM::CLOSURE_OP(SQObjectPtr &target, SQFunctionProto *func,SQInteger bound
 		SQObjectPtr &val = _stack._vals[_stackbase + boundtarget];
 		SQObjectType t = sq_type(val);
 		if (t == OT_TABLE || t == OT_CLASS || t == OT_INSTANCE || t == OT_ARRAY) {
-			closure->_env = _refcounted(val)->GetWeakRef(t);
-			__ObjAddRef(closure->_env);
+			closure->_env = val;
 		}
 		else {
 			Raise_Error(_SC("cannot bind a %s as environment object"), IdType2Name(t));
@@ -1267,8 +1266,8 @@ bool SQVM::CallNative(SQNativeClosure *nclosure, SQInteger nargs, SQInteger newb
     for (SQInteger i = 0; i < outers; i++) {
         _stack._vals[newbase+nargs+i] = nclosure->_outervalues[i];
     }
-    if(nclosure->_env) {
-        _stack._vals[newbase] = nclosure->_env->_obj;
+    if(nclosure->_env._type != OT_NULL) {
+        _stack._vals[newbase] = nclosure->_env;
     }
 
     _nnativecalls++;
