@@ -11,7 +11,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#ifdef AZURE_SPHERE_HL
+#include "new.h"
+#else
 #include <new>
+#endif
 //squirrel stuff
 #include <squirrel.h>
 #include "sqobject.h"

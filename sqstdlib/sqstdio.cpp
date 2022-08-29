@@ -1,5 +1,12 @@
 /* see copyright notice in squirrel.h */
+#ifdef AZURE_SPHERE_HL
+#include "new.h"
+#include <unistd.h>
+#include <string.h>
+#include <applibs/storage.h>
+#else
 #include <new>
+#endif
 #include <stdio.h>
 #include <squirrel.h>
 #include <sqstdio.h>
@@ -9,22 +16,39 @@
 //basic API
 SQFILE sqstd_fopen(const SQChar *filename ,const SQChar *mode)
 {
+#ifndef AZURE_SPHERE_HL
 #ifndef SQUNICODE
     return (SQFILE)fopen(filename,mode);
 #else
     return (SQFILE)_wfopen(filename,mode);
 #endif
+#else
+    if(strchr(mode, 'w') == NULL) {
+        return (SQFILE)Storage_OpenFileInImagePackage(filename);
+    }
+    else {
+        return (SQFILE)Storage_OpenMutableFile();
+    } 
+#endif
 }
 
 SQInteger sqstd_fread(void* buffer, SQInteger size, SQInteger count, SQFILE file)
 {
+#ifndef AZURE_SPHERE_HL
     SQInteger ret = (SQInteger)fread(buffer,size,count,(FILE *)file);
+#else
+    SQInteger ret = (SQInteger)read((int)file, (void*)buffer, size*count);
+#endif
     return ret;
 }
 
 SQInteger sqstd_fwrite(const SQUserPointer buffer, SQInteger size, SQInteger count, SQFILE file)
 {
+#ifndef AZURE_SPHERE_HL
     return (SQInteger)fwrite(buffer,size,count,(FILE *)file);
+#else
+    return (SQInteger)write((int)file, (const void*)buffer, size*count);
+#endif
 }
 
 SQInteger sqstd_fseek(SQFILE file, SQInteger offset, SQInteger origin)
@@ -36,27 +60,47 @@ SQInteger sqstd_fseek(SQFILE file, SQInteger offset, SQInteger origin)
         case SQ_SEEK_SET: realorigin = SEEK_SET; break;
         default: return -1; //failed
     }
+#ifndef AZURE_SPHERE_HL
     return fseek((FILE *)file,(long)offset,(int)realorigin);
+#else
+    return (SQInteger)lseek((int)file, (off_t)offset, (int)realorigin);
+#endif
 }
 
 SQInteger sqstd_ftell(SQFILE file)
 {
+#ifndef AZURE_SPHERE_HL
     return ftell((FILE *)file);
+#else
+    return (SQInteger)lseek((int)file, 0, SEEK_CUR);
+#endif
 }
 
 SQInteger sqstd_fflush(SQFILE file)
 {
+#ifndef AZURE_SPHERE_HL
     return fflush((FILE *)file);
+#else
+    return fsync((int)file);
+#endif
 }
 
 SQInteger sqstd_fclose(SQFILE file)
 {
+#ifndef AZURE_SPHERE_HL
     return fclose((FILE *)file);
+#else
+    return close((int)file);
+#endif
 }
 
 SQInteger sqstd_feof(SQFILE file)
 {
+#ifndef AZURE_SPHERE_HL
     return feof((FILE *)file);
+#else
+    return (lseek((int)file, 0, SEEK_CUR) >= lseek((int)file, 0, SEEK_END)) ? -1 : 0;
+#endif
 }
 
 //File

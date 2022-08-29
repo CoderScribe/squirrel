@@ -1,5 +1,9 @@
 /* see copyright notice in squirrel.h */
+#ifdef AZURE_SPHERE_HL
+#include "new.h"
+#else
 #include <new>
+#endif
 #include <squirrel.h>
 #include <sqstdio.h>
 #include <string.h>

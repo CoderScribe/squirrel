@@ -15,7 +15,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
 set(CMAKE_CXX_STANDARD 11)
 
-if(CMAKE_COMPILER_IS_GNUCXX)
+if(CMAKE_COMPILER_IS_GNUCXX AND AZURE_SPHERE_HL)
   add_compile_options(
     "$<$<COMPILE_LANGUAGE:CXX>:-fno-rtti;-fno-exceptions>"
     -fno-strict-aliasing
@@ -26,8 +26,21 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     "$<$<CONFIG:Release>:-O3>"
     "$<$<CONFIG:RelWithDebInfo>:-O3;-g>"
     "$<$<CONFIG:MinSizeRel>:-Os>"
-    "$<$<CONFIG:Debug>:-pg;-pie;-gstabs;-g3;-Og>"
+    "$<$<CONFIG:Debug>:-pie;-gstabs;-g3;-Og>" #-pg was removed to workaround lack of full C++ support
     )
+elseif(CMAKE_COMPILER_IS_GNUCXX)
+    add_compile_options(
+      "$<$<COMPILE_LANGUAGE:CXX>:-fno-rtti;-fno-exceptions>"
+      -fno-strict-aliasing
+      -Wall
+      -Wextra
+      -pedantic
+      -Wcast-qual
+      "$<$<CONFIG:Release>:-O3>"
+      "$<$<CONFIG:RelWithDebInfo>:-O3;-g>"
+      "$<$<CONFIG:MinSizeRel>:-Os>"
+      "$<$<CONFIG:Debug>:-pg;-pie;-gstabs;-g3;-Og>"
+      )
 elseif(MSVC)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -35,7 +48,9 @@ endif()
 
 add_subdirectory(squirrel)
 add_subdirectory(sqstdlib)
-add_subdirectory(sq)
+if(NOT AZURE_SPHERE_HL)
+  add_subdirectory(sq)
+endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
   set(tgts)
